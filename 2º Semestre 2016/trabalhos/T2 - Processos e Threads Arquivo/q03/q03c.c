@@ -20,6 +20,7 @@ struct pair{
 	int i, j;
 };
 
+// Faz a multiplicação na célula [i][j] passado como index.
 void* fill_matrix(void *index){
 
 	struct pair *p = (struct pair*) index;
@@ -27,20 +28,20 @@ void* fill_matrix(void *index){
 	int iaux = (*p).i;
 	int jaux = (*p).j;
 
-	int teste = 0;
+	int value = 0;
 
-	int kteste;
+	int kaux;
 
-	for ( kteste = 0; kteste < row2; kteste++ ){
+	for ( kaux = 0; kaux < row2; kaux++ ){
 
-		teste += x[iaux][kteste] * y[kteste][jaux];
+		value += x[iaux][kaux] * y[kaux][jaux];
 	}
 
-	int teste2 = 1000000;
+	// int teste2 = 1000000;
 
 	// while(teste2--);
 
-	// w[iaux][jaux] = teste;
+	w[iaux][jaux] = value;
 }
 
 struct pair create_pair(int i, int j){
@@ -67,9 +68,7 @@ int main(){
 		for ( j = 0; j < column2; j++ )
 			scanf("%d", &y[i][j]);
 
-	int iaux = 0;
-	int jaux = 0;
-	int number_threads = 0;
+	int number_threads = 0; // usado como auxliar para indicar qual das 4 threads utilizar.
 
 	pthread_t thread_id[4];
 
@@ -83,11 +82,12 @@ int main(){
 			pair[aux] = create_pair(i,j);
 
 			pthread_create(&(thread_id[number_threads]), NULL, 
-			&fill_matrix, &pair[aux]);
+			&fill_matrix, &pair[aux]); // faz a thread executar a função full_matrix.
 
 			aux++;
 
-			if ( number_threads == (4 - 1) ){ // Solução em software para limitar o número
+			// number_threads = 3 significa que é a quarta thread concorrente.
+			if ( number_threads == 3 ){ // Solução em software para limitar o número
 											  // de threads concorrentes.
 
 				int index;
@@ -102,9 +102,12 @@ int main(){
 
 	int index;
 
-	if ( number_threads != 0 ) // Caso sobre threads.
-		for ( index = number_threads; index < 4; index++ )
-			pthread_join(thread_id[index], NULL);
+	// Faz o processo esperar as threads que sobraram do for duplo anterior.
+	if ( number_threads != 0 )
+		for ( index = number_threads - 1; index < 4; index++ )
+				pthread_join(thread_id[index], NULL);
+
+	free(pair);
 
 	printf("Result:\n");
 

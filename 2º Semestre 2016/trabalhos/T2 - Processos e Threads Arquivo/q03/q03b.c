@@ -17,6 +17,7 @@ struct pair{
 	int i, j;
 };
 
+// Faz a multiplicação na célula [i][j] passado como index.
 void* fill_matrix(void *index){
 
 	struct pair *p = (struct pair*) index;
@@ -24,20 +25,20 @@ void* fill_matrix(void *index){
 	int iaux = (*p).i;
 	int jaux = (*p).j;
 
-	int teste = 0;
+	int value = 0;
 
-	int kteste;
+	int kaux;
 
-	for ( kteste = 0; kteste < row2; kteste++ ){
+	for ( kaux = 0; kaux < row2; kaux++ ){
 
-		teste += x[iaux][kteste] * y[kteste][jaux];
+		value += x[iaux][kaux] * y[kaux][jaux];
 	}
 
 	// int teste2 = 1000000;
 
 	// while(teste2--);
 
-	w[iaux][jaux] = teste;
+	w[iaux][jaux] = value;
 }
 
 struct pair create_pair(int i, int j){
@@ -75,13 +76,16 @@ int main(){
 			pair[aux] = create_pair(i,j);
 
 			pthread_create(&(thread_id[aux]), NULL, 
-			&fill_matrix, &pair[aux]);
+			&fill_matrix, &pair[aux]); // faz uma thread executar a função fill_matrix.
 
 			aux++;
 		}
 
 	for ( i = 0; i < aux; i++ )
 		pthread_join(thread_id[i], NULL);
+
+	free(thread_id);
+	free(pair);
 	
 	printf("Result:\n");
 
