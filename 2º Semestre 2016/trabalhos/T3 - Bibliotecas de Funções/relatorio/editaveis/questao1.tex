@@ -1,9 +1,29 @@
-\section{Questão 1}
+\section{Questão 1a}
+	
+	\subsection{Instruções}
+		\subsubsection{Compilação}
 
-  Para compilar essa questão foi utilizado um arquivo Makefile, no qual contém as regras de compilação. Para gerar o executável digite \textit{make} no terminal e em seguida rode o programa com o comando \textit{./alarm}.
+	  Para compilar essa questão foi utilizado um arquivo Makefile, no qual contém as regras de compilação. Para gerar o executável digite \textit{make} no terminal.
 
-  O programa implementado comporta-se da seguinte maneira após sua execução:
+	  \subsubsection{Execução}
+	  Para executar o programa digite \textit{./main} no terminal.
+	  Após execução do programa, será mostrado um menu em \textit{loop} com as seguintes opções:
 
-   Espera 5 segundos e então imprimi a mensagem \textbf{Alarm clock}.
+	  \textbf{1) Gerar primo.}
+	  \textbf{2) Testar primo.}
+	  \textbf{0) Sair.}
 
-  Não foi identificada nenhuma inconsistência nessa questão.
+	  Para entrar em uma das opções basta digitar o número correspondente na tela, sendo que na opção 2, será pedido um número e será exibido na tela se o mesmo é primo ou não.
+
+  \subsection{Limitações}
+
+  	\subsubsection{Entrada}
+
+  		O menu do programa não valida nenhuma entrada inválida, e caso seja passado um número inteiro que não esteja nas opções do menu, o programa irá encerrar.
+  		O programa só aceita números inteiros positivos com o limite da variável \textit{int} da linguagem C.
+
+  	\subsubsection{Números pseudo aleatórios}
+
+  		Para gerar os números pseudo aleatórios foi utilizado a função \textit{rand()} da biblioteca \textit{stdlib}. Como o intervalo de geração dos inteiros são todos os números de até 32 \textit{bits} e a função utiliza o tempo do computador como base, normalmente são gerados números muito grandes e caso o intervalo de geração dos números seja muito pequeno, pode ser gerado dois números iguais em seguida.
+
+
