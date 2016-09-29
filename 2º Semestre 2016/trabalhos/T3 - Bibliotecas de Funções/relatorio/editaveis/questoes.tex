@@ -5,7 +5,9 @@
 	de códigos-fonte necessárias para a solução (se houverem)?
 \end{itemize}
 
-Não houve alterações nos códigos fonte das bibliotecas, somente nos arquivos Makefile.
+Não é necessário alterações nos códigos fontes, uma vez que, o que difere entre elas é o executável. Enquanto na 	questão 1a é usado uma biblioteca estática, ou seja, ó código da biblioteca é inserido no executável. Já para a questão 1b, que usa biblioteca dinamicamente lincada, os objetos compartilhados são vinculados em tempo de execução, porém não precisam ser inseridos no executável.
+
+Para fazer com que as bibliotecas sejam usadas estaticamente ou dinamicamente é necessário mudar as regras de compilação.
 
 \begin{itemize}
 	\item Dados os conhecimentos adquiridos em função desse trabalho, indique vantagens e problemas decorrentes da utilização de bibliotecas dinâmicas.
@@ -15,19 +17,16 @@ Não houve alterações nos códigos fonte das bibliotecas, somente nos arquivos
 	\item Vantagens:
 
 	Salva espaço em disco, caso n programas utilizem a biblioteca, não será necessário n cópias da biblioteca para funcionamento dos programas.
-	Pode-se evoluir a biblioteca sem necessariamente ter que evoluir os programas que a utilizam, podendo-se corrigir bugs da biblioteca sem mecher nos códigos fonte desses programas.
+	Pode-se evoluir a biblioteca sem necessariamente ter que evoluir os programas que a utilizam, podendo-se corrigir \textit{bugs} da biblioteca sem mexer nos códigos fonte desses programas.
 
 	\item Problemas:
 
-	A vantagem de atualizar uma biblioteca sem necessariamente mecher nos programas que a utilizam pode ser uma desvantagem também, caso a atualização de uma biblioteca quebre os programas que a utilizam. 
+	A vantagem de atualizar uma biblioteca sem necessariamente mexer nos programas que a utilizam pode ser uma desvantagem também, caso a atualização de uma biblioteca quebre os programas que a utilizam.
 
 	Outra desvantagem seria a instalação da biblioteca, não é possível instalar a biblioteca em /lib ou /usr/lib sem permissão de administrador, caso não seja possível instalar nesses diretórios, será necessário deixar explícito o local onde a biblioteca ficará, gerando um passo adicional aos usuários.
 
 	\end{itemize}
 
 \end{itemize}
-
-% \item Dados os conhecimentos adquiridos em função desse trabalho, indique vantagens e problemas decorrentes da utilização de bibliotecas dinâmicas.
-
 
 
