@@ -1,0 +1,27 @@
+Questões:
+
+Em relação ao programa que contempla os itens a) e b), quais foram as alterações
+de códigos-fonte necessárias para a solução (se houverem)?
+---------------------------------------------------------------------------------
+
+Não houve alterações nos códigos fonte das bibliotecas, somente nos arquivos Makefile.
+
+---------------------------------------------------------------------------------
+
+
+Dados os conhecimentos adquiridos em função desse trabalho, indique vantagens e problemas decorrentes da utilização de bibliotecas dinâmicas.
+---------------------------------------------------------------------------------
+
+
+vantagens:
+
+Salva espaço em disco, caso n programas utilizem a biblioteca, não será necessário n cópias da biblioteca para funcionamento dos programas.
+Pode-se evoluir a biblioteca sem necessariamente ter que evoluir os programas que a utilizam, podendo-se corrigir bugs da biblioteca sem mecher nos códigos fonte desses programas.
+
+problemas:
+
+A vantagem de atualizar uma biblioteca sem necessariamente mecher nos programas que a utilizam pode ser uma desvantagem também, caso a atualização de uma biblioteca quebre os programas que a utilizam. 
+
+Outra desvantagem seria a instalação da biblioteca, não é possível instalar a biblioteca em /lib ou /usr/lib sem permissão de administrador, caso não seja possível instalar nesses diretórios, será necessário deixar explícito o local onde a biblioteca ficará, gerando um passo adicional aos usuários.
+
+---------------------------------------------------------------------------------
