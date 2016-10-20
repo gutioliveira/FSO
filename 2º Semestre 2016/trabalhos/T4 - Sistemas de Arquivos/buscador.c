@@ -5,47 +5,65 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
-void printdir(char *folder, char *dir_name, const char *substring, int *cont, const int N){
+int contador = 1;
+
+void primeiros_30_bytes(const char *file_name){
+
+    FILE *fp = fopen(file_name, "r");
+
+    int cont = 0;
+
+    int c;
+
+    while( (c = fgetc(fp)) != EOF ){
+
+        printf("%c", (char) c);
+        cont++;
+
+        if ( cont >= 30 )
+            break;
+    }
+
+    printf("\n");
+}
+
+void percorre_diretorios(char *nome_diretorio, const char *substring, const int N){
+    
     DIR *dp;
-    struct dirent *entry;
-    struct stat statbuf;
+    struct dirent *entrada;
+    struct stat estado;
 
-    if( (dp = opendir(folder)) == NULL ) {
+    if( (dp = opendir(nome_diretorio)) == NULL ) {
 
-        fprintf(stderr,"Não foi possível abrir a pasta: %s\n", folder);
+        fprintf(stderr,"Não foi possível abrir a pasta: %s\n", nome_diretorio);
         return;
     }
 
-    if ( *cont > N )
-        return;
+    chdir(nome_diretorio);
 
-    char *directory = folder;
+    while((entrada = readdir(dp)) != NULL) {
 
-    chdir(folder);
+        lstat(entrada->d_name,&estado);
 
-    while((entry = readdir(dp)) != NULL) {
+        if(S_ISDIR(estado.st_mode)) {
 
-        lstat(entry->d_name,&statbuf);
-
-        if(S_ISDIR(statbuf.st_mode)) {
-
-            char buf_path[1000];
-
-            if ( strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0 )
+            if ( strcmp(entrada->d_name, ".") == 0 || strcmp(entrada->d_name, "..") == 0 )
                 continue;
-            
-            sprintf(buf_path, "%s/%s", dir_name, entry->d_name);
 
-            printdir(entry->d_name, buf_path, substring, cont, N);
+            percorre_diretorios(entrada->d_name, substring, N);
         }else{
 
-            if ( *cont > N )
-                return;
 
-            if ( strstr(entry->d_name, substring) != NULL ){
+            if ( strstr(entrada->d_name, substring) != NULL ){
 
-                printf("%d.%s/%s\n", *cont, dir_name, entry->d_name);
-                *cont = *cont + 1;
+                char buf[1024];
+                getcwd(buf, sizeof(buf));
+
+                if ( contador <= N ){
+
+                    printf("%d.%s/%s\n", contador++, buf, entrada->d_name);
+                    primeiros_30_bytes(entrada->d_name);
+                }
             }
         }
     }
@@ -55,15 +73,13 @@ void printdir(char *folder, char *dir_name, const char *substring, int *cont, co
 
 int main(int argc, char **argv){
 
-    char *path = argv[1];
+    char *caminho = argv[1];
     char *substring = argv[2];
     int N = atoi(argv[3]);
 
-    int contador = 1;
+    printf("\n\n\nResultado de buscador -- \"%s\" na pasta %s\n\n\n\n", substring, caminho);
 
-    printf("\n\n\nResultado de %s -- \"buscador\" na pasta %s\n\n\n\n", substring, path);
-
-    printdir(path, path, substring, &contador,N);
+    percorre_diretorios(caminho, substring,N);
 
     return 0;
 }
