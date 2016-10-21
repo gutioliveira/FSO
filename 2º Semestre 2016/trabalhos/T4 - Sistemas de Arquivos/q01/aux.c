@@ -69,6 +69,11 @@ void print_metadados(char *partition, char *file_number, const char *file_name){
         printf("File inode: \t\t%d\n",file_metadata.st_ino);
         printf("Horário de acesso do arquivo: %s\n", atime);
         printf("Horário de modificação do arquivo: %s\n", mtime);
+
+        char buffer[1000];
+        sprintf(buffer, "cp %s %s.bkp", file_name, file_name);
+        system(buffer);
+
         printf("Horário de criação do arquivo: %s\n", 
             get_creation_date(partition, file_number));
     }
@@ -78,30 +83,19 @@ int open_file(char *partition, char *file_number, const char *file_name) {
 
     struct stat file_metadata;
 
-    char buffer[1000];
+    // char buffer[1000];
 
     // sprintf(buffer, "cp %s %s.bkp 2> erros", file_name, file_name);
 
     // printf("%s\n", buffer);
 
-    system(buffer);
+    // system(buffer);
 
     // FILE *erro = fopen("erros", "r");
 
     // if ( fgetc(erro) == EOF ){
-    if ( 1 ){
-        printf("nois caralho\n");
-        system("rm erros");
 
-        print_metadados(partition, file_number, file_name);
-
-        return 1;
-    }else{
-
-        printf("nao foi dessa vez\n");
-        system("rm erros");
-        return 0;
-    }
+    print_metadados(partition, file_number, file_name);
 
     return 1;
 }
