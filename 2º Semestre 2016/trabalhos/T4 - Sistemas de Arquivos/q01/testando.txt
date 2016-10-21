@@ -1,0 +1,3 @@
+O programa deverá receber como entradas o nome de um arquivo e uma string numérica
+no formato AAAAMMDDHHmm em que A representa dígitos do ano, M, dígitos do
+mês, D, dígitos do dia, H, dígitos hora e m, dígitos do minuto.

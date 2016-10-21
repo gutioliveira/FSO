@@ -3,7 +3,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <stat-time.h>
 #include <sys/types.h>
 #include <time.h>
 
@@ -46,6 +45,8 @@ int open_file(char file_name[100]) {
     printf("Horário de criação do arquivo: %s\n", mtime);
   }
 
+
+//sudo debugfs -R 'stat /home/lu/Dropbox/Estudos.txt' /dev/sda5
 
 
   //  Imprimir metadados horário de:
