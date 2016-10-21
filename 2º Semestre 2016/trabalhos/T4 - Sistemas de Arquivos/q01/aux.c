@@ -6,62 +6,105 @@
 #include <sys/types.h>
 #include <time.h>
 
-// int open_file(char file_name[100]) {
-//   FILE *backup;
-//   char file_backup[100];
+char *get_creation_date(char *partition, char *file_number){
 
-//   strcpy(file_backup, file_name);
-//   strcat(file_backup, ".bkp");
+    char buffer[1024];
 
-//   // Todo - cp file file metadata
-//   backup = fopen(file_backup, "a");
-//   if (backup == NULL) {
-//     printf("Não foi possível criar o arquivo de backup\n");
-//     return 0;
-//   }
+    sprintf(buffer, "sudo debugfs -R 'stat <%s>' %s > out", file_number, partition);
 
-//   struct stat file_metadata;
-//   if (stat(file_name, &file_metadata) >= 0) {
-//     // Converting time
-//     char mtime[80];
-//     char c_time[80];
-//     char atime[80];
-//     time_t t_mtime = file_metadata.st_mtime;
-//     time_t t_atime = file_metadata.st_atime;
-//     time_t t_ctime = file_metadata.st_ctime;
-//     struct tm lt;
-//     struct tm lt2;
-//     struct tm lt3;
+    system(buffer);
 
-//     localtime_r(&t_mtime, &lt);
-//     localtime_r(&t_atime, &lt2);
-//     localtime_r(&t_ctime, &lt3);
+    FILE *fp = fopen("out", "r");
 
-//     strftime(mtime, sizeof mtime, "%a, %d %b %Y %T", &lt);
-//     strftime(atime, sizeof atime, "%a, %d %b %Y %T", &lt2);
-//     strftime(c_time, sizeof c_time, "%a, %d %b %Y %T", &lt3);
+    char aux[1000];
 
-//     // Printing file metadata
-//     printf("File Size: \t\t%d bytes\n",file_metadata.st_size);
-//     printf("Number of Links: \t%d\n",file_metadata.st_nlink);
-//     printf("File inode: \t\t%d\n",file_metadata.st_ino);
-//     printf("Horário de acesso do arquivo: %s\n", atime);
-//     printf("Horário de modificação do arquivo: %s\n", mtime);
-//     printf("Horário de criação do arquivo: %s\n", c_time);
-//   }
+    char *creation_date = malloc(1000);
 
+    while ( fscanf(fp, "%s", aux) != EOF ){
 
-// //sudo debugfs -R 'stat /home/lu/Dropbox/Estudos.txt' /dev/sda5
+        // printf("%s\n", aux);
 
+        if ( strcmp(aux, "crtime:") == 0 ){
 
-//   //  Imprimir metadados horário de:
-//      // criação,
-//       // modificação
-//       // acesso do arquivo alvo.
+            char day[10];
+            char month[10];
+            char day_n[10];
+            char hour[50];
+            char year[10];
 
+            fscanf(fp, "%*s %*s %s %s %s %s %s", day, month, day_n, hour, year);
+            sprintf(creation_date, "%s %s %s %s %s", day, month, day_n, hour, year);
+            // printf("%s\n", creation_date);
+            break;
+        }
+    }
 
-//   fclose(backup);
-// }
+    fclose(fp);
+
+    return creation_date;
+}
+
+void print_metadados(char *partition, char *file_number, const char *file_name){
+
+    struct stat file_metadata;
+
+    if (stat(file_name, &file_metadata) >= 0) {
+        // Converting time
+        char mtime[80];
+        char atime[80];
+        time_t t_mtime = file_metadata.st_mtime;
+        time_t t_atime = file_metadata.st_atime;
+        struct tm lt;
+        struct tm lt2;
+
+        localtime_r(&t_mtime, &lt);
+        localtime_r(&t_atime, &lt2);
+
+        strftime(mtime, sizeof mtime, "%a, %d %b %Y %T", &lt);
+        strftime(atime, sizeof atime, "%a, %d %b %Y %T", &lt2);
+
+        // Printing file metadata
+        printf("File Size: \t\t%d bytes\n",file_metadata.st_size);
+        printf("Number of Links: \t%d\n",file_metadata.st_nlink);
+        printf("File inode: \t\t%d\n",file_metadata.st_ino);
+        printf("Horário de acesso do arquivo: %s\n", atime);
+        printf("Horário de modificação do arquivo: %s\n", mtime);
+        printf("Horário de criação do arquivo: %s\n", 
+            get_creation_date(partition, file_number));
+    }
+}
+
+int open_file(char *partition, char *file_number, const char *file_name) {
+
+    struct stat file_metadata;
+
+    char buffer[1000];
+
+    // sprintf(buffer, "cp %s %s.bkp 2> erros", file_name, file_name);
+
+    // printf("%s\n", buffer);
+
+    system(buffer);
+
+    // FILE *erro = fopen("erros", "r");
+
+    // if ( fgetc(erro) == EOF ){
+    if ( 1 ){
+        printf("nois caralho\n");
+        system("rm erros");
+
+        print_metadados(partition, file_number, file_name);
+
+        return 1;
+    }else{
+
+        printf("nao foi dessa vez\n");
+        system("rm erros");
+        return 0;
+    }
+
+    return 1;
+}
 
 char *get_partition(){
 
@@ -101,42 +144,53 @@ char *get_file_number(const char *file_name){
     return file_number;
 }
 
-char *get_creation_date(char *partition, char *file_number){
+void change_metadados(const char **argv,const char *file_name){
 
-    char buffer[1024];
+    char buffer_time[50];
 
-    sprintf(buffer, "sudo debugfs -R 'stat <%s>' %s > out", file_number, partition);
+    sprintf(buffer_time, "timedatectl set-time '%c%c%c%c-%c%c-%c%c %c%c:%c%c:00'"
+        ,argv[1][0],argv[1][1],argv[1][2],argv[1][3],argv[1][4],argv[1][5],argv[1][6]
+        ,argv[1][7],argv[1][8],argv[1][9],argv[1][10],argv[1][11]);
 
-    system(buffer);
+    printf("%s\n", buffer_time);
 
-    FILE *fp = fopen("out", "r");
+    system("date +\"%F %T\" > time");
 
-    char aux[1000];
+    FILE *fp_time = fopen("time", "r");
+    // Fri Dec 24 08:15:42 BRST 2010
 
-    char *creation_date = malloc(1000);
+    char date[20];
+    char hour[20];
 
-    while ( fscanf(fp, "%s", aux) != EOF ){
+    fscanf(fp_time, "%s %s", date, hour);
 
-        // printf("%s\n", aux);
+    fclose(fp_time);
 
-        if ( strcmp(aux, "crtime:") == 0 ){
+    system(buffer_time);
 
-            char day[10];
-            char month[10];
-            char day_n[10];
-            char hour[50];
-            char year[10];
+    sprintf(buffer_time, "timedatectl set-time '%s %s'", date, hour);
 
-            fscanf(fp, "%*s %*s %s %s %s %s %s", day, month, day_n, hour, year);
-            sprintf(creation_date, "%s %s %s %s %s", day, month, day_n, hour, year);
-            printf("%s\n", creation_date);
-            break;
-        }
-    }
+    char buffer_file[100];
 
-    fclose(fp);
+    sprintf(buffer_file, "cp %s %s2", file_name, file_name);
 
-    return creation_date;
+    system(buffer_file);
+
+    sprintf(buffer_file, "rm %s", file_name);
+
+    system(buffer_file);
+
+    sprintf(buffer_file, "mv %s2 %s", file_name, file_name);
+
+    system(buffer_file);
+
+    FILE *fp_file = fopen(file_name, "r");
+
+    fclose(fp_file);
+
+printf("teste %s\n", buffer_time);
+
+    system(buffer_time);
 }
 
 int main(int argc, char const *argv[])
@@ -148,30 +202,10 @@ int main(int argc, char const *argv[])
 
     char *file_number = get_file_number(argv[2]);
 
-    printf("%s\n",get_creation_date(partition, file_number));
+    if ( open_file(partition, file_number, argv[2]) ){
 
-    char buffer_time[50];
-
-
-
-    // sprintf(buffer_time, "timedatectl set-time '%c%c%c%c-%c%c-%c%c %c%c:%c%c:00'"
-    //     ,argv[1][0],argv[1][1],argv[1][2],argv[1][3],argv[1][4],argv[1][5],argv[1][6]
-    //     ,argv[1][7],argv[1][8],argv[1][9],argv[1][10],argv[1][11]);
-
-    // printf("%s\n", buffer_time);
-
-    // system(buffer_time);
-
-    // FILE *fp = fopen("PLSGOD2.txt", "a");
-
-    // fclose(fp);
-
-    int x = 1000000000;
-
-    while(x--)
-        ;
-
-    // system("timedatectl set-ntp true");
+        change_metadados(argv, argv[2]);
+    }   
     // system("df -h . > out");
 
     // Input data sudo debugfs -R 'stat <14156272>' /dev/sda8
