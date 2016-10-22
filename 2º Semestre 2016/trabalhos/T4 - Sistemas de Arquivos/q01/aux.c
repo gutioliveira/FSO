@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
+#include <assert.h>
 
 char *get_creation_date(char *partition, char *file_number){
 
@@ -16,13 +17,11 @@ char *get_creation_date(char *partition, char *file_number){
 
     FILE *fp = fopen("out", "r");
 
-    char aux[1000];
+    char aux[1024];
 
     char *creation_date = malloc(1000);
 
     while ( fscanf(fp, "%s", aux) != EOF ){
-
-        // printf("%s\n", aux);
 
         if ( strcmp(aux, "crtime:") == 0 ){
 
@@ -34,24 +33,25 @@ char *get_creation_date(char *partition, char *file_number){
 
             fscanf(fp, "%*s %*s %s %s %s %s %s", day, month, day_n, hour, year);
             sprintf(creation_date, "%s %s %s %s %s", day, month, day_n, hour, year);
-            // printf("%s\n", creation_date);
             break;
         }
     }
 
     fclose(fp);
 
+    assert(!strlen(creation_date) == 0);
+
     return creation_date;
 }
 
-void print_metadados(char *partition, char *file_number, const char *file_name){
+void print_metadados(char *partition, char *file_number, char *file_name){
 
     struct stat file_metadata;
 
     if (stat(file_name, &file_metadata) >= 0) {
         // Converting time
-        char mtime[80];
-        char atime[80];
+        char mtime[1024];
+        char atime[1024];
         time_t t_mtime = file_metadata.st_mtime;
         time_t t_atime = file_metadata.st_atime;
         struct tm lt;
@@ -64,13 +64,10 @@ void print_metadados(char *partition, char *file_number, const char *file_name){
         strftime(atime, sizeof atime, "%a, %d %b %Y %T", &lt2);
 
         // Printing file metadata
-        printf("File Size: \t\t%d bytes\n",file_metadata.st_size);
-        printf("Number of Links: \t%d\n",file_metadata.st_nlink);
-        printf("File inode: \t\t%d\n",file_metadata.st_ino);
         printf("Horário de acesso do arquivo: %s\n", atime);
         printf("Horário de modificação do arquivo: %s\n", mtime);
 
-        char buffer[1000];
+        char buffer[1024];
         sprintf(buffer, "cp %s %s.bkp", file_name, file_name);
         system(buffer);
 
@@ -79,21 +76,7 @@ void print_metadados(char *partition, char *file_number, const char *file_name){
     }
 }
 
-int open_file(char *partition, char *file_number, const char *file_name) {
-
-    struct stat file_metadata;
-
-    // char buffer[1000];
-
-    // sprintf(buffer, "cp %s %s.bkp 2> erros", file_name, file_name);
-
-    // printf("%s\n", buffer);
-
-    // system(buffer);
-
-    // FILE *erro = fopen("erros", "r");
-
-    // if ( fgetc(erro) == EOF ){
+int open_file(char *partition, char *file_number, char *file_name) {
 
     print_metadados(partition, file_number, file_name);
 
@@ -119,7 +102,7 @@ char *get_partition(){
     return partition;
 }
 
-char *get_file_number(const char *file_name){
+char *get_file_number(char *file_name){
 
     char buffer[1024];
 
@@ -138,23 +121,20 @@ char *get_file_number(const char *file_name){
     return file_number;
 }
 
-void change_metadados(const char **argv,const char *file_name){
+void change_metadados(char **argv, char *file_name){
 
-    char buffer_time[50];
+    char buffer_time[1024];
 
     sprintf(buffer_time, "timedatectl set-time '%c%c%c%c-%c%c-%c%c %c%c:%c%c:00'"
-        ,argv[1][0],argv[1][1],argv[1][2],argv[1][3],argv[1][4],argv[1][5],argv[1][6]
-        ,argv[1][7],argv[1][8],argv[1][9],argv[1][10],argv[1][11]);
-
-    printf("%s\n", buffer_time);
+        ,argv[2][0],argv[2][1],argv[2][2],argv[2][3],argv[2][4],argv[2][5],argv[2][6]
+        ,argv[2][7],argv[2][8],argv[2][9],argv[2][10],argv[2][11]);
 
     system("date +\"%F %T\" > time");
 
     FILE *fp_time = fopen("time", "r");
-    // Fri Dec 24 08:15:42 BRST 2010
 
-    char date[20];
-    char hour[20];
+    char date[1024];
+    char hour[1024];
 
     fscanf(fp_time, "%s %s", date, hour);
 
@@ -164,7 +144,7 @@ void change_metadados(const char **argv,const char *file_name){
 
     sprintf(buffer_time, "timedatectl set-time '%s %s'", date, hour);
 
-    char buffer_file[100];
+    char buffer_file[1024];
 
     sprintf(buffer_file, "cp %s %s2", file_name, file_name);
 
@@ -182,30 +162,24 @@ void change_metadados(const char **argv,const char *file_name){
 
     fclose(fp_file);
 
-printf("teste %s\n", buffer_time);
-
     system(buffer_time);
 }
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char *argv[]){
 
-    printf("%s\n", argv[1]);
+    char *partition;
 
-    char *partition = get_partition();
+    if ( argc == 4 )
+        partition = argv[3];
+    else
+        partition = get_partition();
 
-    char *file_number = get_file_number(argv[2]);
+    char *file_number = get_file_number(argv[1]);
 
-    if ( open_file(partition, file_number, argv[2]) ){
+    if ( open_file(partition, file_number, argv[1]) ){
 
-        change_metadados(argv, argv[2]);
+        change_metadados(argv, argv[1]);
     }   
-    // system("df -h . > out");
-
-    // Input data sudo debugfs -R 'stat <14156272>' /dev/sda8
-    // system("sudo debugfs -R 'stat <14156272>' /dev/sda8 > out");
-
-
 
     return 0;
 }
